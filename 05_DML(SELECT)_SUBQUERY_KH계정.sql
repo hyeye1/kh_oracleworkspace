@@ -116,13 +116,13 @@ WHERE DEPT_CODE = ( SELECT DEPT_CODE
     
     -[NOT] IN 서브쿼리 : 여러개의 결과값 중에서 한개라도 일치하는 값이 있으면 / 없다면 이라는 의미
     
-    ANY :                   OR
+    ANY :  하나라도                 OR
     - > ANY 서브쿼리 : 여러개의 결과값 중에서 "하나라도" 클 경우
                      여러개의 결과값 중에서 가장 작은값보다 클 경우
     - < ANY 서브쿼리 : 여러개의 결과값 중에서 "하나라도" 작을 경우
                      여러개의 결과값 중에서 가장 큰값 보다 작을 경우
     
-    ALL : 모든               AND       
+    ALL :  모든                     AND       
     - > ALL 서브쿼리 : 여러개의 결과값의 "모든"값보다 클 경우
                      여러개의 결과값 중에서 가장 큰 값보다 클 경우
     - < ALL 서브쿼리 : 여러개의 결과값의 "모든"값보다 작을 경우
@@ -240,5 +240,84 @@ WHERE (JOB_CODE, MANAGER_ID) = (SELECT JOB_CODE, MANAGER_ID
 
 
 
+--각 부서별 최고급여를 받는 사원들 사번, 사원명, 부서코드, 급여
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY "급여"
+
+FROM EMPLOYEE
+WHERE (NVL(DEPT_CODE, '없음'), SALARY) IN (SELECT NVL(DEPT_CODE, '없음'), MAX(SALARY)
+                                          FROM EMPLOYEE
+                                          GROUP BY DEPT_CODE)                                
+ORDER BY 급여;
+---------------------------------------------------------------------------------------
+/*
+    5. 인라인뷰 (INLINE-VIEW)
+       FROM 절에 서브쿼리를 제시하는 것
+       
+       서브쿼리를 수행한 결과 (RESULT SET)을 테이블 대신에 사용함
+    
+    
+*/
+-- 보너스 포함 연봉이 3000만원 이상 사원들의 사번 이름 보너스포함연봉 부서코드 조회
+SELECT EMP_ID, EMP_NAME, (SALARY + SALARY * NVL(BONUS, 0)) *12 "보너스포함연봉", DEPT_CODE 
+FROM EMPLOYEE
+WHERE (SALARY + SALARY * NVL (BONUS, 0)) * 12 >= 30000000;
+
+-->> 인라인뷰
+SELECT *
+FROM (SELECT EMP_ID, EMP_NAME, (SALARY + SALARY * NVL(BONUS, 0)) * 12 "보너스포함연봉", DEPT_CODE
+      FROM EMPLOYEE)
+WHERE 보너스포함연봉 >= 30000000;
+
+-->> 인라인 뷰를 주로 사용하는 예
+--   * TOP-N 분석
+
+-- 전 직원 중 가장 급여가 높은 상위 5명
+
+-- * ROWNUM : 오라클에서 제공해주는 컬럼, 조회된 순서대로 1부터 순번을 부여해주는 컬럼
+SELECT ROWNUM, EMP_NAME, SALARY     --3
+FROM EMPLOYEE                       --1
+WHERE ROWNUM <=5                    --2
+ORDER BY SALARY DESC;               --4
+
+--> ORDER BY로 정렬한 테이블을 가지고 ROWNUM 순번 부여 후에 ROWNUM <= 5
+SELECT
+FROM (SELECT *
+      FROM EMPLOYEE
+      ORDER BY SALARY DESC)
+WHERE ROWNUM <= 5;
+
+SELECT ROWNUM "순번", E.*
+FROM (SELECT *
+      FROM EMPLOYEE
+      ORDER BY SALARY DESC) E
+WHERE ROWNUM <= 10;
+
+-- 각 부서별 평균급여가 높은 3개의 부서의 부서코드, 평균급여 조회
+SELECT *
+FROM (SELECT DEPT_CODE, AVG(SALARY) "평균급여"
+      FROM EMPLOYEE
+      GROUP BY DEPT_CODE
+      ORDER BY 평균급여 DESC)
+WHERE ROWNUM <= 3;
+
+-- 가장 최근에 입사한 사원 5명 조회, 사원명, 급여, 입사일
+SELECT *
+FROM (SELECT EMP_NAME, SALARY, HIRE_DATE
+      FROM EMPLOYEE
+      ORDER BY HIRE_DATE DESC)
+WHERE ROWNUM <= 5;
 
 
+------------------------------------------------------------------------------------
+/*
+    6. 순위 매기는 함수
+        . RANK() OVER(정렬기준)
+    DENSE_RANK() OVER(정렬기준)
+    
+    단, 위의 함수들은 오로지 SELECT절에서만 작성가능
+    
+    - RANK() OVER(정렬기준)
+    - DENSE_RANK() OVER(정렬기준)
+*/
+-- 사원들의 급여가 높은 순대로 순위를 
+SELECT EMP_NAME, SALARY, RANK() 
