@@ -51,9 +51,19 @@ ORDER BY DEPT_CODE;
 ---------------------------------------------------------------------------------
 
 -- 부서별 급여합이 1000만원 이상인 부서만을 조회 (부서코드, 부서별 급여합)
-
+SELECT 
+       DEPT "부서명"
+     , SUM(SALARY) "급여합"
+FROM EMP
+GROUP BY DEPT
+HAVING SUM(SALARY) > 9000000;
 
 -- '800918-2******' 주민번호 조회 => SUBSTR, RPAD
+SELECT
+       ENAME "사원명"
+     , RPAD ( SUBSTR(ENO, 1, 8), 14, '*' ) "주민번호"
+FROM EMP;
+
 
 
 -- 직원들의 급여를 인상시켜서 조회
@@ -62,6 +72,14 @@ ORDER BY DEPT_CODE;
 --          'J5'인 사원은 급여를 20%로 인상해서 조회     SALARY * 1.2
 --     그외의 직급인 사원들은 급여를 5%로만 인상해서 조회  SALARY * 1.05
 
-
+SELECT 
+       EMPNAME "직원명"
+     , JOBCODE "직급코드"
+     , SALARY "급여"
+     , DECODE ( JOBCODE, 'J7', SALARY * 1.08
+                       , 'J6', SALARY * 1.07
+                       , 'J5', SALARY * 1.05
+                             , SALARY * 1.03) "인상급여"
+FROM EMP;
 
 
