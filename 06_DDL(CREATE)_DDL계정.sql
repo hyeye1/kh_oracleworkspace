@@ -479,16 +479,85 @@ SELECT MEM_NO, MEM_ID, MEM_PWD, MEM_NAME, GRADE_NAME
 FROM MEM
 LEFT JOIN MEM_GRADE ON(GRADE_ID = GRADE_CODE);
 
+/*
+    ** 굳이 외래키 제약조건이 걸려있지 않더라도 join가능하다
+       다만 두 컬럼에 동일한 의미의 데이터만 담겨있다면 매칭해서 join해서 조회가능하다.
+*/
+---------------------------------------------------------------------------------
+-----------여기서부터는 KH계정에서 실행 시작! 이전까지는 DDL계정-------------------------
+/*
+    -KH계정
+    
+    * SUBQUERY 를 이용한 테이블 생성 (테이블 복사뜨는 개념)
+    
+    메인 SQL문 (SELECT, CREATE, INSERT, UPDATE, ...) 을 보조역할을 하는 쿼리문 == 서브쿼리
+    
+    [표현식]
+    CREATE TABLE 테이블명
+    AS 서브쿼리; 
 
+    해당 서브쿼리를 수행한 결과로 새로이 테이블을 생성하겠다는 개념
+    
+*/
+-- EMPLOYEE 테이블을 복제한 새로운 테이블 생성(EMPLOYEE_COPY)
+CREATE TABLE EMPLOYEE_COPY
+AS SELECT *
+   FROM EMPLOYEE;
+--> 컬럼들, 조회결과의 데이터값들, 제약조건같은 경우 NOT NULL만 복사됨
+SELECT * FROM EMPLOYEE_COPY;
 
+-- EMPLOYEE 테이블에 있는 컬럼만 복제하기 (데이터값 필요없음)
+/*
+CREATE TABLE EMPLOYEE_COPY2(
+    EMP_ID NUMBER,
+    EMP_NAME VARCHAR2(20),
+    EMP_NO VARCHAR2(20),
+    ...
+);
+*/
+CREATE TABLE EMPLOYEE_COPY2
+AS SELECT *
+   FROM EMPLOYEE
+   WHERE 1=0;  -- FALSE를 만들어줘서 맞는 데이터가 없게끔 -> 데이터 복제안됨 (즉 컬럼만복제됨)
 
+SELECT * FROM EMPLOYEE_COPY2;
 
+-- 전체사원들 중 급여가 300만원 이상인 사원들의 사번, 이름, 부서코드, 급여 컬럼 복제
+CREATE TABLE EMPLOYEE_COPY3
+AS SELECT EMP_ID 사번, EMP_NAME, DEPT_CODE, SALARY
+   FROM EMPLOYEE
+   WHERE SALARY >= 3000000;
 
+SELECT * FROM EMPLOYEE_COPY3;
 
+-- 전체사원의 사번, 사원명, 급여, 연봉 조회 결과 테이블 생성
+CREATE TABLE EMPLOYEE_COPY4
+AS SELECT EMP_ID, EMP_NAME, SALARY, SALARY*12
+   FROM EMPLOYEE;
+--> 서브쿼리의 SELECT절 산술연산 또는 함수식이 기술된 경우 반드시 별칭부여해야함
 
+SELECT * FROM EMPLOYEE_COPY4;
+-------------------------------------------------------------------------------
+/*
+    * 테이블 다 생성된 후 뒤늦게 제약조건 추가 (ALTER TABLE 테이블명 XXXX)
+    
+    - PRIMARY KEY : ADD PRIMARY KEY(컬럼명);
+    - FOREIGN KEY : ADD FOREIGN KEY(컬럼명) REFERENCES 참조할테이블명[(참조할컬럼명)];
+    - UNIQUE : ADD UNIQUE(컬럼명);
+    - CHECK : ADD CHECK(컬럼에대한조건);
+    - NOT NULL : MODIFY 컬럼명 NOT NULL;
+*/
+-- EMPLOYEE_COPY 테이블에 없는 PRIMARY KEY 제약조건 추가 EMP_ID컬럼에
+ALTER TABLE EMPLOYEE_COPY ADD PRIMARY KEY(EMP_ID);
 
+-- EMPLOYEE 테이블에 DEPT_CODE 컬럼에 외래키 제약조건 추가 (DEPARTMENT의 DEPT_ID를 참조)
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY(DEPT_CODE) REFERENCES DEPARTMENT(DEPT_ID); 
 
+-- EMPLOYEE 테이블에 JOB_CODE컬럼에 외래키 제약조건 추가 (JOB의 JOB_CODE참조)
+ALTER TABLE EMPLOYEE ADD FOREIGN KEY(JOB_CODE) REFERENCES JOB(JOB_CODE);
 
+-- DEPARTMENT 테이블에 LOCATION_ID에 외래키 제약조건 추가 (LOCATION의 LOCAL_CODE참조)
+ALTER TABLE DEPARTMENT ADD FOREIGN KEY(LOCATION_ID) REFERENCES LOCATION(LOCAL_CODE);
 
 
 
