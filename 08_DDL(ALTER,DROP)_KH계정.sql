@@ -19,7 +19,7 @@
 -- 1) 컬럼 추가/수정/삭제
 -- 1-1) 컬럼 추가 (ADD) : ADD 추가할컬럼명 데이터타입 [DEFAULT 기본값]
 SELECT * FROM DEPT_COPY;
-
+ 
 -- CNAME 컬럼 추가
 ALTER TABLE DEPT_COPY ADD CNAME VARCHAR2(20);
 --> 새로운 컬럼이 만들어지고 기본적으로 NULL값으로 채워짐
