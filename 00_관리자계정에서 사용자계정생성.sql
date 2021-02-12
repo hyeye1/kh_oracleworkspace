@@ -6,4 +6,4 @@ CREATE USER KH IDENTIFIED BY KH;
 
 -- 생성된 사용자계정에게 최소한의 권한(접속, 데이터관리)부여
 -- [표현법] GRANT 권한1, 권한2, .. TO 계정명;
-GRANT CONNECT, RESOURCE TO KH;
+GRANT CONNECT, RESOURCE TO KH; 
