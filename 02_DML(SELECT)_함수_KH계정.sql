@@ -93,6 +93,9 @@ WHERE SUBSTR(EMP_NO, 8, 1) IN ('2', '4');
 SELECT EMP_NAME, EMAIL, SUBSTR(EMAIL, 1, INSTR(EMAIL, '@')-1) "아이디"
 FROM EMPLOYEE;
 
+
+SELECT EMP_NAME, EMAIL, SUBSTR(EMAIL, 1, INSTR(EMAIL, '@')-1) "아이디"
+FROM EMPLOYEE;
 ---------------------------------------------------------------------------------
 
 /*
@@ -105,8 +108,10 @@ FROM EMPLOYEE;
     제시한 문자열에 임의의 문자를 왼쪽 또는 오른쪽에 덧붙여서 최종 N길이만큼의 문자열을 반환
     
 */
-SELECT LPAD(EMAIL, 20) -- 덧붙이고자하는 문자 생략시 기본값이 공백
+SELECT LPAD(EMAIL, 20) "EMAIL" -- 덧붙이고자하는 문자 생략시 기본값이 공백
 FROM EMPLOYEE;
+
+SELECT '가나다' || 'ABC' || 'DEF' FROM DUAL;
 
 SELECT RPAD(EMAIL, 20, '#')
 FROM EMPLOYEE;
