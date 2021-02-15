@@ -5,8 +5,8 @@
     
     계정에게 시스템권한 또는 객체접근권한을 부여(GRANT)하거나 회수(REVOKE)하는 언어
     
-    > 시스템권한   : 특정DB에 접근하는 권한, 객체들을 생성할 수 있는 권한
-    > 객체접근권한  : 특정 객체들에 접근해서 조작할 수 있는 권한
+    > 시스템권한     : 특정DB에 접근하는 권한, 객체들을 생성할 수 있는 권한
+    > 객체접근권한    : 특정 객체들에 접근해서 조작할 수 있는 권한
     
     * 시스템권한 종류
     - CREATE SESSION : 계정에 접속할 수 있는 권한
@@ -70,7 +70,7 @@ GRANT CONNECT, RESOURCE TO 계정명;
     RESOURCE : CREATE TABLE, CREATE SEQUENCE, ... (특정 객체들을 생성 및 관리할 수 있는 권한)
 */
 SELECT *
-FROM ROLE_SYS_PRIVS
+FROM ROLE_SYS_PRIVS -- 롤들이 담겨있는 테이블! 
 WHERE ROLE IN ('CONNECT', 'RESOURCE');
 
 -- 사용자에게 부여할 권한 : CONNECT, RESOURCE
