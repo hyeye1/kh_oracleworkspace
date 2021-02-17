@@ -283,3 +283,121 @@ WHERE JOB_CODE = 'J7';
 DELETE FROM VW_DT_JOB
 WHERE JOB_CODE = 'J7';
 
+---------------------------------------------------------------------------------
+-- 6) JOIN을 이용해 여러 테이블을 연결한 경우
+
+CREATE OR REPLACE VIEW VW_JOINEMP
+AS SELECT EMP_ID, EMP_NAME, DEPT_TITLE
+   FROM EMPLOYEE
+   JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID);
+   
+SELECT * FROM VW_JOINEMP;
+
+-- INSERT
+INSERT INTO VW_JOINEMP VALUES(888, '조세오', '총무부');
+
+-- UPDATE 
+UPDATE VW_JOINEMP
+SET EMP_NAME = '서동일'
+WHERE EMP_ID = 200; --> 가능 
+
+UPDATE VW_JOINEMP
+SET DEPT_TITLE = '인사부'
+WHERE DEPT_TITLE = '인사관리부'; --> 불가능 
+
+-- DELETE
+DELETE FROM VW_JOINEMP
+WHERE EMP_ID = 200;
+
+DELETE FROM VW_JOINEMP
+WHERE DEPT_TITLE = '총무부';
+
+SELECT * FROM EMPLOYEE;
+SELECT * FROM DEPARTMENT;
+
+ROLLBACK;
+
+---------------------------------------------------------------------------------
+/*
+    * VIEW 옵션
+    
+    [상세표현법]
+    CREATE [OR REPLACE] [FORCE|"NOFORCE"] VIEW 뷰명
+    AS 서브쿼리
+    [WITH CHECK OPTION]
+    [WITH READ ONLY];
+    
+    1) OR REPLACE : 해당 뷰가 존재하지 않으면 새로 생성 / 해당 뷰가 존재하면 갱신시켜주는 옵션
+    2) FORCE / NOFORCE
+       > FORCE : 서브쿼리에 기술된 테이블이 존재하지 않아도 뷰가 생성
+       > NOFORCE(생략시 기본값) : 서브쿼리에 기술된 테이블이 반드시 존재해야만 뷰가 생성
+    3) WITH CHECK OPTION : 서브쿼리의 조건절에 기술된 내용에 만족하는 값으로만 DML이 가능 (조건에 부합하지 않은 값으로 수정하는 경우 오류발생)
+    4) WITH READ ONLY : 뷰에 대해 조회만 가능 (DML수행 불가)
+
+*/
+
+-- 2) FORCE/NOFORCE
+CREATE OR REPLACE /*NOFORCE*/ VIEW VW_TEST
+AS SELECT TCODE, TNAME, TCONTENT
+   FROM TT;
+   
+CREATE OR REPLACE FORCE VIEW VW_TEST
+AS SELECT TCODE, TNAME, TCONTENT
+   FROM TT;
+   
+SELECT * FROM VW_TEST;
+
+CREATE TABLE TT(
+    TCODE NUMBER,
+    TNAME VARCHAR2(30),
+    TCONTENT VARCHAR2(50)
+);
+
+-- 3) WITH CHECK OPTION
+CREATE OR REPLACE VIEW VW_EMP
+AS SELECT *
+   FROM EMPLOYEE
+   WHERE SALARY >= 3000000;
+
+SELECT * FROM VW_EMP;
+
+-- 200번 사원의 급여를 200만원으로 수정 => 서브쿼리의 조건에 맞지않아도 변경가능하다.
+UPDATE VW_EMP
+SET SALARY = 2000000
+WHERE EMP_ID = 200;
+
+ROLLBACK;
+
+CREATE OR REPLACE VIEW VW_EMP
+AS SELECT *
+   FROM EMPLOYEE
+   WHERE SALARY >= 3000000
+WITH CHECK OPTION;
+
+SELECT * FROM VW_EMP;
+
+UPDATE VW_EMP
+SET SALARY = 2000000
+WHERE EMP_ID = 202; --> 서브쿼리에 기술한 조건에 부합하지 않았기 때문에 변경 불가
+
+UPDATE VW_EMP
+SET SALARY = 4000000
+WHERE EMP_ID = 202; --> 서브쿼리에 기술한 조건에 부합하기 때문에 변경가능
+
+SELECT * FROM EMPLOYEE;
+
+ROLLBACK;
+
+-- 4) WITH READ ONLY
+CREATE OR REPLACE VIEW VW_EMPBONUS
+AS SELECT EMP_ID, EMP_NAME, BONUS
+   FROM EMPLOYEE
+   WHERE BONUS IS NOT NULL
+WITH READ ONLY;
+
+SELECT * FROM VW_EMPBONUS;
+
+DELETE FROM VW_EMPBONUS
+WHERE EMP_ID = 204;
+
+

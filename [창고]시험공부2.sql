@@ -1,0 +1,95 @@
+
+-- 각 부서별 최고급여를 받는 사원들 사번, 사원명, 부서코드, 급여
+
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE (DEPT_CODE, SALARY) IN (SELECT DEPT_CODE, MAX(SALARY)
+                             FROM EMPLOYEE
+                             GROUP BY DEPT_CODE)
+ORDER BY DEPT_CODE;
+                             -- DEPT_CODE = '없음' AND SALARY = 2890000
+--> 부서가 없는 사원은 조회되지 않음
+SELECT EMPID, EMPNAME, DEPTCODE, SAL
+FROM EMP
+WHERE (NVL(DEPTCODE, '없음'), SAL) IN (SELECT NVL(DEPTCODE, '없음'), MAX(SAL)
+                                        FROM EMP
+                                    GROUP BY DEPTCODE)
+ORDER BY DEPTCODE;
+
+--> NVL 함수를 이용해서 변경
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE (NVL(DEPT_CODE, '없음'), SALARY) IN (SELECT NVL(DEPT_CODE, '없음'), MAX(SALARY)
+                                          FROM EMPLOYEE
+                                          GROUP BY DEPT_CODE);
+                                          -- DEPT_CODE = NULL AND SALARY = 2890000
+--> 부서가 없는 사원은 조회되지 않음!
+
+--> NVL 함수를 이용해서 변경
+SELECT EMPID, EMPNAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE (NVL(DEPT_CODE, '없음'), SALARY) IN (SELECT NVL(DEPT_CODE, '없음'), MAX(SALARY)
+                                          FROM EMPLOYEE
+                                          GROUP BY DEPT_CODE);
+                                          
+-- 위쪽의 BOARD 테이블 생성하는 구문
+CREATE TABLE BOARD (
+    BOARDNO NUMBER PRIMARY KEY,
+    BOARDTITLE VARCHAR2(50) NOT NULL,
+    BOARDDATE DATE DEFAULT SYSDATE NOT NULL,
+    BOARDWRITER VARCHAR2(15) NOT NULL,
+    BOARDCONTENT VARCHAR2(2000),
+    ORIGINAL_FILEPATH VARCHAR2(100),
+    RENAME_FILEPATH VARCHAR2(100)
+);
+
+COMMENT ON COLUMN BOARD.BOARDNO IS '게시글번호';
+COMMENT ON COLUMN BOARD.BOARDTITLE IS '게시글제목';
+COMMENT ON COLUMN BOARD.BOARDDATE IS '게시글등록날짜';
+COMMENT ON COLUMN BOARD.BOARDWRITER IS '게시글작성자아이디';
+COMMENT ON COLUMN BOARD.BOARDCONTENT IS '게시글내용';
+COMMENT ON COLUMN BOARD.ORIGINAL_FILEPATH IS '첨부파일원본명';
+COMMENT ON COLUMN BOARD.RENAME_FILEPATH IS '첨부파일수정명';
+
+-- INSERT도 몇행 삽입해보시고
+INSERT INTO BOARD VALUES(1, '게시글제목이다', SYSDATE, 'USER01', '안녕하세요', '원본', '수정');
+INSERT INTO BOARD VALUES(2, '게시글제목이다', SYSDATE, 'USER02', '안녕하세요', '원본', '수정');
+INSERT INTO BOARD VALUES(3, '게시글제목이다', SYSDATE, 'USER03', '안녕하세요', '원본', '수정');
+INSERT INTO BOARD VALUES(4, '게시글제목이다', SYSDATE, 'USER04', '안녕하세요', '원본', '수정');
+INSERT INTO BOARD VALUES(5, '게시글제목이다', SYSDATE, 'USER05', '안녕하세요', '원본', '수정');
+
+SELECT * FROM BOARD;
+
+-- BOARD테이블에 최근에 등록된 게시글 5개를 조회하는 TOP-N 분석 구문을 작성해보시오
+-->> 1. ROWNUM 이용한 방법
+SELECT *
+FROM (SELECT *
+      FROM BOARD
+      ORDER BY BOARDDATE DESC)
+WHERE ROWNUM <= 5;
+
+SELECT *
+FROM (SELECT *
+      FROM NOTICE
+      ORDER BY NOTICEDATE)
+WHERE ROWNUM <= 5;
+
+-->> 2. RANK() 함수를 이용한 방법
+SELECT *
+FROM (SELECT BOARDNO, BOARDTITLE, BOARDDATE, BOARDWRITER, BOARDCONTENT,
+             ORIGINAL_FILEPATH, RENAME_FILEPATH, RANK() OVER(ORDER BY BOARDNO DESC) "순위"
+      FROM BOARD)
+WHERE 순위 <= 5;
+
+SELECT *
+FROM (SELECT NOTICENO, NOTICETITLE, NOTICEDATE, NOTICEWRITER, NOTICECONTENT, ORIGINAL_FILEPATH, RENAME_FILEPATH, RANK() OVER(ORDER BY NOTICEDATE) "최근 공지글"
+        FROM NOTICE)
+WHERE 순위 <= 5;
+
+-->> RANK() OVER() / DENSE_RANK() OVER() 특징 차이점
+
+-->> JOIN 공부
+
+-->> 테이블 생성 => DDL 실습문제 (도서관리프로그램) 다시보기
+
+-->> INSERT

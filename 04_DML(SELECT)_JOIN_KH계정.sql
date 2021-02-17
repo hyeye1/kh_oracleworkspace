@@ -30,12 +30,12 @@
 
 */
 
--- 전체 사원들의 사번, 사원명, 부서코드, 부서명까지 알아내고자 한다면?
-SELECT EMP_ID, EMP_NAME, DEPT_CODE
-FROM EMPLOYEE;
-
-SELECT DEPT_ID, DEPT_TITLE
-FROM DEPARTMENT;
+    -- 전체 사원들의 사번, 사원명, 부서코드, 부서명까지 알아내고자 한다면?
+    SELECT EMP_ID, EMP_NAME, DEPT_CODE
+    FROM EMPLOYEE;
+    
+    SELECT DEPT_ID, DEPT_TITLE
+    FROM DEPARTMENT;
 
 -- 전체 사원들의 사번, 사원명, 직급코드, 직급명까지 알아내고자 한다면?
 SELECT EMP_ID, EMP_NAME, JOB_CODE
@@ -202,7 +202,7 @@ JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
 JOIN JOB USING(JOB_CODE);
 
 ------------------------------------------------------------------------여기까지가 등가조인,내부조인
--- 일치하는게 없으면 조회되지않는다, 무조건 찾아서 조인하는게 분가조인과 내부조인의 특징
+-- 일치하는게 없으면 조회되지않는다, 무조건 찾아서 조인하는게 등가조인과 내부조인의 특징
 -----------------------------------------------------------------------------------------------
 /*
     2. 포괄조인 / 외부조인 (OUTER JOIN)
